@@ -29,9 +29,9 @@ using http://127.0.0.1:36677/upload
 {"success":false,"message":"upload error"}
 ```
 
-![image-20210520222048332](E:/WorkAndLearn/PicGoImage/Image/image-20210520222048332.png)
 
 
+![image-20210520225427003](Image/image-20210520225427003.png)
 
 
 
