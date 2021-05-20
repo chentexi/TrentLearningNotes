@@ -29,11 +29,7 @@ using http://127.0.0.1:36677/upload
 {"success":false,"message":"upload error"}
 ```
 
-
-"init"
-
-## init
-
+![image-20210520232212402](Image/image-20210520232212402.png)
 
 
 
