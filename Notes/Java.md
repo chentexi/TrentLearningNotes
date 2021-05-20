@@ -17,18 +17,6 @@
 
 
 
-
-
-```
-using http://127.0.0.1:36677/upload
-```
-
-###### 程序运行结果：
-
-```
-{"success":false,"message":"upload error"}
-```
-
 ![image-20210520232212402](Image/image-20210520232212402.png)
 
 
