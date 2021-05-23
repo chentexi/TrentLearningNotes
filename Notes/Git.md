@@ -237,5 +237,9 @@ git stash drop
 
    ![image-20210523220656647](Image/image-20210523220656647.png)
 
+6. 合并分支
+
+   git merge 分支名
+
    
 
