@@ -316,4 +316,5 @@ git stash drop
 
 5. git pull 远程库地址别名 远程分支名
 
-   
+   ![image-20210524000204461](Image/image-20210524000204461.png)
+
