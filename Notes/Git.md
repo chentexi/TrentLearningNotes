@@ -228,8 +228,15 @@ git stash drop
    ![image-20210523220107905](Image/image-20210523220107905.png)
 
 4. 修改分支
+   <<<<<<< HEAD
 
    ![image-20210523221655216](Image/image-20210523221655216.png)
+   =======
+   在hox-fix分支下面进行修改不影响master分支
+
+    
+
+
 
 5. 切换分支
 
@@ -237,9 +244,11 @@ git stash drop
 
    ![image-20210523220656647](Image/image-20210523220656647.png)
 
+<<<<<<< HEAD
 6. 合并分支
 
    git merge 分支名
 
-   
+=======
+>>>>>>> hox-fix
 
