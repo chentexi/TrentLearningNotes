@@ -14,7 +14,7 @@
 
 ### 1.2.1 Git
 
-![image-20210523181933490](Image/image-20210523181933490.png)
+​		![image-20210523181933490](Image/image-20210523181933490.png)
 
 ## 1.3 Git工作机制
 
@@ -232,7 +232,7 @@ git stash drop
 ![image-20210523221655216](Image/image-20210523221655216.png)
    =======
 在hox-fix分支下面进行修改不影响master分支
-   
+
  
 
 5. 切换分支
@@ -461,3 +461,66 @@ AGBFeW2+K81XrmkP27FrLI6lDef atguiguyueyue@aliyun.com
 
 ![image-20210524004909166](Image/image-20210524004909166.png)
 
+# 4.Git-->IDEA
+
+ ## 4.1 忽略文件
+
+1. 创建忽略规则文件xxx.ignore
+
+这个文件的存放位置原则上在哪里都可以，为了便于让~/.gitconfig文件引用，建议也放在用户家目录下
+git.ignore文件模版内容如下：
+
+```ignore
+# Compiled class file
+*.class
+# Log file
+*.log
+# BlueJ files
+*.ctxt
+# Mobile Tools for Java (
+.mtj.
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+# virtual machine crash logs, see
+http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+.classpath
+.project
+.settings
+target
+.idea
+*.iml
+```
+
+2. 在 .gitconfig文件中引用忽略配置文件（此文件在 Windows的家目录中）
+
+```
+[user]
+		name = Layne
+	email = Layne @atguigu.com
+[core]
+excludesfile = C:/Users/ asus git .ignore
+注意：这里要使用“正斜线（ （//）”，不要使用“反斜线
+```
+
+## 4.2 切换版本
+
+![image-20210524232220447](Image/image-20210524232220447.png)
+
+## 4.3 创建分支
+
+![image-20210524232435502](Image/image-20210524232435502.png)
+
+## 4.4 切换分支
+
+![image-20210524232743473](Image/image-20210524232743473.png)
+
+## 4.5 合并分支
+
+![image-20210524232845953](Image/image-20210524232845953.png)
