@@ -548,3 +548,10 @@ excludesfile = C:/Users/ asus git .ignore
 代码冲突解决，自动提交本地库。
 
 ![image-20210524234613181](Image/image-20210524234613181.png)
+
+# 5. Git-->Gitee
+
+# 6. Git-->GitLab
+
+
+
