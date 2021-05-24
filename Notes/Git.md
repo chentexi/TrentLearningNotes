@@ -175,11 +175,11 @@ Unstaged changes after reset
 
 解决的办法如下2种办法：
 
-1.git add .
+1. git add .
 
 git reset --hard
 
-2.git stash
+2. git stash
 
 git stash drop
 
@@ -524,3 +524,27 @@ excludesfile = C:/Users/ asus git .ignore
 ## 4.5 合并分支
 
 ![image-20210524232845953](Image/image-20210524232845953.png)
+
+## 4.6 解决冲突
+
+如图所示，如果master分支和 hot-fix分支都修改了代码，在合并分支的时候就会发生冲突。
+
+![image-20210524233952886](Image/image-20210524233952886.png)
+
+![image-20210524234011499](Image/image-20210524234011499.png)
+
+我们现在站在master分支上合并 hot-fix分支，就会发生代码冲突。
+
+![image-20210524234306249](Image/image-20210524234306249.png)
+
+点击 Conflicts框里的 Merge按钮，进行手动合并代码。
+
+![image-20210524234521877](Image/image-20210524234521877.png)
+
+手动合并完代码以后，点击右下角的 Apply按钮。
+
+![image-20210524234546606](Image/image-20210524234546606.png)
+
+代码冲突解决，自动提交本地库。
+
+![image-20210524234613181](Image/image-20210524234613181.png)
