@@ -351,3 +351,113 @@ git stash drop
 
 ![image-20210524002944560](Image/image-20210524002944560.png)
 
+## 3.4 跨团队协作
+
+1. 将远程仓库的地址复制发给邀请跨团队协作的人，比如东方不败。
+
+   ![image-20210524003231309](Image/image-20210524003231309.png)
+
+2. 在东方不败的 GitHub账号里的地址栏复制收到的链接，然后点击 Fork将项目叉到自己的本地仓库
+
+   ![image-20210524003429499](Image/image-20210524003429499.png)
+
+![image-20210524003550062](Image/image-20210524003550062.png)
+
+3. 东方不败就可以在线编辑叉取过来的文件。
+
+   ![image-20210524003704322](Image/image-20210524003704322.png)
+
+4. 编辑完毕后，填写描述信息并点击左下角绿色按钮提交。
+
+   ![image-20210524003731953](Image/image-20210524003731953.png)
+
+5. 接下来点击上方的 Pull请求，并创建一个新的请求
+
+   ![image-20210524003758309](Image/image-20210524003758309.png)
+
+![image-20210524003819753](Image/image-20210524003819753.png)
+
+6.回到岳岳 GitHub账号可以看到有一个 Pull request请求 。
+
+![image-20210524003847692](Image/image-20210524003847692.png)
+
+![image-20210524004032639](Image/image-20210524004032639.png)
+
+7. 如果代码没有问题，可以点击 Merge pull reque合并代码。
+
+![image-20210524004057464](Image/image-20210524004057464.png)
+
+
+
+## 3.5 SSH免密登录
+
+我们可以看到远程仓库中还有一个SSH的地址，因此我们也可以使用 SSH进行访问 。
+
+![image-20210524004306795](Image/image-20210524004306795.png)
+
+具体操作:
+
+1.
+
+```git
+进入当前用户的家目录
+Layne@LAPTOP Layne MINGW64 /d Git Space/SH0720 (
+$ cd
+删除 .ssh 目录
+Layne@LAPTOP Layne MINGW64
+$ rm rvf .ssh
+removed '.ssh/known_hosts'
+removed directory '.ssh'
+运行命令生成 ssh 秘钥目录 注意：这里 C 这个参数是大写的 C
+Layne@LAPTOP Layne MINGW64
+$ ssh keygen t rsa C atguiguyueyue@aliyun.com
+Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/ Layne /.ssh/id_
+Created directory '/c/Users/ Layne /.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/ Layne /.ssh/id_
+Your public key has been saved in /c/Users/ Layne /.ssh/id_rsa.
+The key fingerprin t is:
+SHA256:7CPfRLITKcYDhaqpEDeok7Atvwh2reRmpxxOC6dkY44
+atguiguyueyue@aliyun.com
+The key's randomart image is:
+++------[RSA
+| ..
+| ..
+| . ..
+|+ + o . .
+|oO . = S .
+|X . .. + =
+|+@ * .. = .
+|X.&o+. o =
+|Eo+Oo . .
+++--------[
+进入 .ssh 目录查看文件列表
+Layne@LAPTOP Layne MINGW64
+$ cd .ssh
+Layne@LAPTOP Layne MINGW64 ~/.ssh
+$ ll a
+total 21
+drwxr xr x 1 Layne 197609 0 11 月 25 19:27
+drwxr xr x 1 Layne 197609 0 11 月 25 19:27
+rw r r 1 Layne 197609 1679 11 月 25 19:27 id_rsa
+rw r r 1 Layne 197609 406 11 月 25 19:27 id_rsa.pub
+查看 id_rsa.pub 文件内容
+Layne@LAPTOP Layne MINGW64 ~/.ssh
+$ cat id_rsa.pub
+ssh rsa
+AAAAB3NzaC1yc2EAAAADAQABAAABAQDRXRsk9Ohtg1AXLltsuNRAGBsx3ypE1O1Rkdzpm
+l1woa6y6G62lZri3XtCH0F7GQvnMvQtPISJFXXWo+jFHZmqYQa/6kOIMv2sszcoj2Qtwl
+lGXTPn/4T2h/cHjSHfc+ks8OYP7OWOOefpOCbYY/7DWYrl89k7nQlfd+A1FV/vQmcsa1L
+P5ihqjpjms2CoUUen8kZHbjwHBAHQHWRE+Vc371MG/dwINvCi 8n7ibI86o2k0dW0+8SL+
+svPV/Y0G9m+RAqgec8b9U6DcSSAMH5uq4UWfnAcUNagb/aJQLytrH0pLa8nMv3XdSGNNo
+AGBFeW2+K81XrmkP27FrLI6lDef atguiguyueyue@aliyun.com
+```
+
+2. 复制id_rsa.pub文件内容，登录GitHub，
+
+   点击用户头像-->Settings--> SSH and GPG keys-->New SSH Key-->
+
+![image-20210524004909166](Image/image-20210524004909166.png)
+
