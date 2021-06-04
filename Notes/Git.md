@@ -1,6 +1,6 @@
-# Git
+Git
 
-## Git、GitHub、Gitee、GitLab大纲介绍
+Git、GitHub、Gitee、GitLab大纲介绍
 
 # 1.Git
 

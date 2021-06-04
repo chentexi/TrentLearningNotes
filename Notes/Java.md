@@ -1,16 +1,14 @@
 # Java
 
-
-
 # No.4 object and Class 
 
-## 4.3 用户自定义类
+## 用户自定义类
 
-### 4.3.1 实体类
+### 实体类
 
 实例域标记应为private
 
-### 4.3.2 构造器
+### 构造器
 
 构造器与类同名,在构造类对象时构造器会运行,以便初始化实例域. 构造器伴随new操作符的执行被调用
 
@@ -25,7 +23,7 @@
 
 ![image-20210526000133301](Image/image-20210526000133301.png)
 
-### 4.3.3隐式参数与显式参数
+### 隐式参数与显式参数
 
 显式参数，就是平时见到的在方法名括号中间的参数，就是所谓能看得见的参数。
 
@@ -53,7 +51,7 @@ public class test {
 
 
 
-###  4.3.6 封装的优点
+###  封装的优点
 
 封装杜绝了外部类对实例域值得破坏
 
@@ -71,9 +69,9 @@ private final StringBuilder  nn=new StringBuilder("");
 
 final关键字在修饰StringBuilder类时:存储在nn变量中的对象引用不会在指向其它的StringBuilder对象.不过该对象可以更改,与变量n不同
 
-## 4.4 静态域/方法
+## 静态域/方法
 
-### 4.4.1 静态域
+### 静态域
 
 ```java
 public class Example01_ObjectStatic{
@@ -92,7 +90,7 @@ public class Example01_ObjectStatic{
 
 ![image-20210526010141984](Image/image-20210526010141984.png)
 
-### 4.4.2 静态常量
+### 静态常量
 
 <u>静态变量使用的少当静态常量使用的多</u>
 
@@ -100,7 +98,7 @@ public class Example01_ObjectStatic{
 private[public] final static String constant="changliangbukebian";
 ```
 
-### 4.4.3 静态方法
+### 静态方法
 
 * 静态方法是没有this参数的方法
 * 静态方法内可以访问类中的静态域
@@ -112,7 +110,7 @@ private[public] final static String constant="changliangbukebian";
 * 一方法不需要访问对象状态，其所需参数都是通过显式参数提供（例如： Math.pow)
 * 一个方法只需要访问类的静态域（例如：Employee.getNextId)
 
-### 4.4.4 方法参数
+### 方法参数
 
 方法参数是指方法得到所有参数值的一个拷贝
 
@@ -121,23 +119,29 @@ private[public] final static String constant="changliangbukebian";
 * 基本数据类型(数值,布尔)
 * 对象引用
 
-## 4.5 对象构造
+## 对象构造
 
-* 重载:多个方法相同的名字,不同的参数,不同的返回值类型
+* ==重载==:多个方法相同的名字,不同的参数,不同的返回值类型 <-- -->(==重写==)
+
 * 无参数构造器:在类中会默认提供一个无参数构造器,并默认给实例域赋初始值
+
+  ==(如果没有初始化类中的域， 将会被自动初始化为默认值（ 0、false 或null)==
+
 * 如果构造器的第一个语句形如this(...)， 这个构造器将调用同一个类的另一个构造器
+
 * 初始化数据域的方法：1.在构造器中设置值 2.在声明中赋值 3.初始代码块
 
 调用构造器的具体步骤：
 
-    1. 所有数据域被初始化为默认值（0、false 或null)。
+1. 所有数据域被初始化为默认值（0、false 或null)。
+
   2. 按照在类声明中出现的次序， 依次执行所有域初始化语句和初始化块。
   3. 如果构造器第一行调用了第二个构造器， 则执行第二个构造器主体
   4. 执行这个构造器的主体
 
-## 4.6 包
+## 包
 
-### 4.6.1 静态导入
+### 静态导入
 
 ```java
 import static chapter_four.Example01_ObjectStatic.ss;
@@ -157,15 +161,17 @@ import static chapter_four.Example01_ObjectStatic.ss;
 
 ​	-对象包装器与自动装箱			   -继承的设计技巧
 
+
+
 # No.5 Inherit
 
-## 5.1 类、超类和子类
+## 类、超类和子类
 
-### 5.1.1 定义子类
+### 定义子类
 
 使用关键字extend表示继承，继承是表明在子类上继承已知已存在的父类类上。已存在的可以称作超类、基类、父类。新创建的类可以称作子类、派生类、孩子类。
 
-### 5.1.2 覆盖方法
+### 覆盖方法
 
 子类继承超类之后可以把超类的方法进行覆盖 
 
@@ -193,7 +199,9 @@ import static chapter_four.Example01_ObjectStatic.ss;
 
 ![image-20210602231340478](Image/image-20210602231340478.png)
 
-==多态==：一个对象变量可以指向多个实际类型的现象称为多态
+#### ==多态==：
+
+一个对象变量可以指向多个实际类型的现象称为多态
 
 ```java
 		Object o1=new String();
@@ -201,9 +209,49 @@ import static chapter_four.Example01_ObjectStatic.ss;
 		Object o3=new StringBuffer();
 ```
 
+### 方法调用过程
 
+1. 编译器查看对象声明的类型和方法名-->
+2. 会找出所引用方法名相同的重载方法如果存在参数类型完全匹配的则调用该方法(重载解析)-->
+3. 如果是private 方法、static 方法、final 方法或者构造器， 那么编译器将可以准确地知道应该调用哪个方法， 我们将这种调用方式称为==静态绑定==(static binding)[==动态绑定==] 调用的方法依赖于隐式参数的实际类型-->　　
+4. 虚拟机通过创建的每个类的方法表进行搜索实现动态绑定市级的调用的方法[==调用super.f(param)==]编译器将对隐式参数超类的方法进行搜索调用
 
-​	
+### 阻止继承:final类和方法
 
+string类引用final, ；
 
+```Java
+public final class String
+    implements java.io.Serializable, Comparable<String>, CharSequence {
+  
+}
+```
+
+final修饰的类:此时子类不能在覆盖类中的方法,默认final类中的方法为final方法
+
+​			 ==[不包括类中的实例域]==
+
+final修饰的域:在构造对象之后就不能允许改变他们的值
+
+[final声明方法或类主要是为了在子类中不会改变其语义]
+
+### 强制类型转换
+
+进行类型转换的唯一原因是：在暂时忽视对象的实际类型之后， 使用对象的全部功能。
+
+```java
+		Object object = new Object();
+
+		if(object instanceof String){
+      
+				String d = (String) object;
+		}
+```
+
+强制转换的要素:
+
+* 只能在继承层次进行类型转换
+* 在将超类转成子类之前,使用instanceof进行检测
+
+###  抽象类
 
