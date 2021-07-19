@@ -26,5 +26,5 @@ https://github.com/chentexi/TrentLearningNotes/blob/master/Notes/Spring%20Boot.m
 
 ## 缓存
 
-https://github.com/chentexi/TrentLearningNotes/blob/master/Notes/缓存.md
+https://github.com/chentexi/TrentLearningNotes/blob/master/Notes/%E7%BC%93%E5%AD%98.md
 
