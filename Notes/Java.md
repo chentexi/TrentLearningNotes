@@ -507,7 +507,7 @@ System.out.println(e.getClass() .getName() + " " + e.getNameO) ;
 2.还可以调用静态方法forName 获得类名对应的Class 对象。
 
 ```java
-String dassName = "java.util .Random";
+String dassName = "java.util.Random";
 Class cl = Class.forName(dassName) ;
 ```
 
@@ -1428,3 +1428,966 @@ Java 泛型的卓越特性之一是在虚拟机中泛型类型的擦除,但是�
 * GenericArrayType 接口， 描述泛型数组（如T[])。
 
 ![image-20210630234244986](Image/image-20210630234244986.png)
+
+```java
+package chapter_eight;
+
+import java.lang.reflect.*;
+import java.util.Arrays;
+import java.util.Scanner;
+
+/**
+ * @Author: Trent
+ * @Date: 2021/6/30 23:06
+ * @program: Java
+ * @Description:
+ */
+public class Test{
+	
+	private SimpleGeneric<String> test1 = new SimpleGeneric<String>();
+	
+	public static void main(String[] args){
+		try{
+			SimpleGeneric simpleGeneric = SimpleGeneric.makePair(Employee.class);
+			System.out.println(simpleGeneric.toString());
+		}catch( InstantiationException e ){
+			e.printStackTrace();
+		}catch( IllegalAccessException e ){
+			e.printStackTrace();
+		}
+		String name = "";
+		
+		if( name.length() > 0 ){
+			name = args[0];
+		}else{
+			try( Scanner input = new Scanner(System.in) ){
+				System.out.println("输入类名(e.g.java.util.Collections):):");
+				name = input.next();
+			}
+		}
+		try{
+			Class<?> aClass = Class.forName(name);
+			printClass(aClass);
+			for( Method m: aClass.getDeclaredMethods() ){
+				printMethod(m);
+			}
+		}catch( ClassNotFoundException e ){
+			e.printStackTrace();
+		}
+	}
+	private static void printMethod(Method m){
+		String name = m.getName();
+		System.out.print(Modifier.toString(m.getModifiers()));
+		System.out.print(" ");
+		printTypes(m.getParameterTypes(), "<", ",", ">", true);
+		
+		printType(m.getGenericReturnType(), false);
+		System.out.print(" ");
+		System.out.print(name);
+		System.out.print("(");
+		printTypes(m.getGenericParameterTypes(), "", ",", "", false);
+		System.out.println(")");
+	}
+	public static void printClass(Class<?> cl){
+		System.out.print(cl);
+		printTypes(cl.getTypeParameters(), "<", ",", ">", true);
+		Type genericSuperclass = cl.getGenericSuperclass();
+		if( genericSuperclass != null ){
+			System.out.print(" extend ");
+			printType(genericSuperclass, false);
+		}
+		printTypes(cl.getGenericInterfaces(), " implements ", ", ", "", false);
+		System.out.println();
+	}
+	private static void printType(Type type, boolean b){
+		if( type instanceof Class ){
+			Class<?> type1 = (Class<?>) type;
+			System.out.print(type1.getName());
+		}else if( type instanceof TypeVariable ){
+			TypeVariable<?> typeVariable = (TypeVariable<?>) type;
+			System.out.print(typeVariable.getName());
+			if( b ){
+				printTypes(typeVariable.getBounds(), " extend ", " & ", "", false);
+			}
+		}else if( type instanceof WildcardType ){
+			WildcardType wildcardType = (WildcardType) type;
+			System.out.print("?");
+			printTypes(wildcardType.getUpperBounds(), " extend ", " & ", "", false);
+			printTypes(wildcardType.getLowerBounds(), " super ", " & ", "", false);
+		}else if( type instanceof ParameterizedType ){
+			ParameterizedType t = (ParameterizedType) type;
+			Type owner = t.getOwnerType();
+			if( owner != null ){
+				printType(owner, false);
+				System.out.print(".");
+			}
+			printType(t.getRawType(), false);
+			printTypes(t.getActualTypeArguments(), "<", " , ", " >", false);
+		}else if( type instanceof GenericArrayType ){
+			GenericArrayType t = (GenericArrayType) type;
+			System.out.print("M");
+			printType(t.getGenericComponentType(), b);
+			System.out.print("[]");
+		}
+	}
+	
+	private static void printTypes(Type[] types, String pre, String sep, String suf, boolean isDefinition){
+		if( pre.equals(" extends ") && Arrays.equals(types, new Type[] {Object.class}) ){
+			return;
+		}
+		if( types.length > 0 ){
+			System.out.print(pre);
+		}
+		for( int i = 0; i < types.length; i++ ){
+			if( i > 0 ){
+				System.out.print(sep);
+			}
+			printType(types[i], isDefinition);
+		}
+		if( types.length > 0 ){
+			System.out.print(suf);
+		}
+	}
+}
+
+
+```
+
+![image-20210701004043208](Image/image-20210701004043208.png)
+
+# 集合
+
+## 集合框架
+
+### 将集合的接口与实现分离
+
+队列有两种实现方式:
+
+* 使用循环数组
+* 使用链表
+
+### Collection 接口
+
+接口有两个基本得方法:
+
+```java
+public interface Collection<E>
+{
+	boolean add(E element);
+	Iterator<E> iterator()；
+  ....  
+}
+```
+
+其中得iterator()方法返回一个实现的iterator()接口的对象:
+
+​	可以使用这个迭代器对象进行依次访问集合中的元素
+
+### 迭代器
+
+迭代器有四个方法:
+
+ ```java
+public interface Iterator<E> {
+    /**
+     * Returns {@code true} if the iteration has more elements.
+     * (In other words, returns {@code true} if {@link #next} would
+     * return an element rather than throwing an exception.)
+     *
+     * @return {@code true} if the iteration has more elements
+     */
+  	如果迭代器对象还有多个访问元素则返回true(判断在next方法访问集合元素时是否到集合尾部防止报错)
+    boolean hasNext();
+
+    /**
+     * Returns the next element in the iteration.
+     *
+     * @return the next element in the iteration
+     * @throws NoSuchElementException if the iteration has no more elements
+     */
+  	逐个访问调用集合中每个元素
+    E next();
+
+    /**
+     * Removes from the underlying collection the last element returned
+     * by this iterator (optional operation).  This method can be called
+     * only once per call to {@link #next}.  The behavior of an iterator
+     * is unspecified if the underlying collection is modified while the
+     * iteration is in progress in any way other than by calling this
+     * method.
+     *
+     * @implSpec
+     * The default implementation throws an instance of
+     * {@link UnsupportedOperationException} and performs no other action.
+     *
+     * @throws UnsupportedOperationException if the {@code remove}
+     *         operation is not supported by this iterator
+     *
+     * @throws IllegalStateException if the {@code next} method has not
+     *         yet been called, or the {@code remove} method has already
+     *         been called after the last call to the {@code next}
+     *         method
+     */
+    default void remove() {
+        throw new UnsupportedOperationException("remove");
+    }
+
+    /**
+     * Performs the given action for each remaining element until all elements
+     * have been processed or the action throws an exception.  Actions are
+     * performed in the order of iteration, if that order is specified.
+     * Exceptions thrown by the action are relayed to the caller.
+     *
+     * @implSpec
+     * <p>The default implementation behaves as if:
+     * <pre>{@code
+     *     while (hasNext())
+     *         action.accept(next());
+     * }</pre>
+     *
+     * @param action The action to be performed for each element
+     * @throws NullPointerException if the specified action is null
+     * @since 1.8
+     */
+    default void forEachRemaining(Consumer<? super E> action) {
+        Objects.requireNonNull(action);
+        while (hasNext())
+            action.accept(next());
+    }
+}
+
+ ```
+
+
+
+```java
+public static void main(String[] args){
+		Collection<String> collection = new HashSet<String>();
+		collection.add("dd");
+		collection.add("ff");
+		collection.add("fg");
+		collection.add("gg");
+		collection.add("hh");
+		collection.add("jj");
+		
+		Iterator<String> iterator = collection.iterator();
+		while (iterator.hasNext()){
+			System.out.println(iterator.next());
+		}
+		System.out.println("while结束!");
+		
+		for(String c: collection ){
+			System.out.println(c);
+		}
+		System.out.println("for each结束!");
+		
+	}
+```
+
+应该将Java迭代器认为是位于两个元素之间。当调用next 时， 迭代器就越过下一个元素并返回刚刚越过的那个元素的引用
+
+在使用remove()方法时,因为remove方法与next方法有相互依赖性,在调用remove方法之前需要调用next方法
+
+### 泛型实用方法
+
+![image-20210703234234270](Image/image-20210703234234270.png)
+
+![image-20210703234255428](Image/image-20210703234255428.png)
+
+### 集合框架中的接口
+
+![image-20210704003025657](Image/image-20210704003025657.png)
+
+#### List
+
+list是一个有序集合:
+
+	* 元素会增加到特定的位置
+	* 访问方式可以采用:1.迭代器访问 2.整数索引访问
+
+```java
+void add(int index, E element)
+void remove(int index)
+E get(int index)
+E set(int index, E element)
+
+```
+
+实际中有两种有序集合，其性能开销有很大差异。由数组支持的有序集合可以快速地随机访问，因此适合使用List 方法并提供一个整数索引来访问。与之不同， 链表尽管也是有序的， 但是随机访问很慢， 所以最好使用迭代器来遍历。如果原先提供两个接口就会容易一些了。
+
+#### Set
+
+set不允许重复元素,
+
+## 具体的集合
+
+![image-20210704013810010](Image/image-20210704013810010.png)
+
+![image-20210704013905858](Image/image-20210704013905858.png)
+
+### 链表(LinkedList)
+
+数组以及动态的ArrayList类:
+
+​	在删除和插入操作会有很大的代价
+
+链表:
+
+​	链表是一个有序的集合
+
+​	链表的每一个元素都有独立的结点,而每个结点都存放着下一个节点的引用,而且每一个链表都是双向链接
+
+![image-20210704154158717](Image/image-20210704154158717.png)
+
+当链表删除一个元素时,只更新附近的节点连接就行
+
+![image-20210704154526457](Image/image-20210704154526457.png)
+
+Listlterator 接口有两个方法， 可以用来反向遍历链表:
+
+ ```java
+E previous()
+boolean hasPreviousO
+ ```
+
+LinkedList 类的listlterator 方法返回一个实现了Listlterator 接口的迭代器对象:
+
+```java
+		List<String> strings = new LinkedList<>();
+		strings.add("fff");
+		strings.add("ggg");
+		strings.add("hhh");
+		ListIterator<String> stringListIterator = strings.listIterator();
+		stringListIterator.next();
+		stringListIterator.add("ddd");
+```
+
+![image-20210704231734913](Image/image-20210704231734913.png)
+
+苛以使用Listlterator 类从前后两个方向遍历链表中的元素， 并可以添加、删除元素。
+
+
+
+### 数组列表(ArrayList)
+
+ArrayList 封装了一个动态再分配的对象数组。
+
+ArrayList 与 Vector的区别:
+
+在于Vector方法是同步的。可以由两个线程安全地访问一个Vector 对象。但是， 如果由一个线程访问Vector, 代码要在同步操作上耗费大量的时间。这种情况还是很常见的。而ArrayList 方法不是同步的，因此， 建议在不需要同步时使用ArrayList, 而不要使用Vector。
+
+### 散列集
+
+散列集是一个无序的集合
+
+![image-20210704235503381](Image/image-20210704235503381.png)
+
+当然， 有时候会遇到桶被占满的情况， 这也是不可避免的。这种现象被称为散列冲突（ hashcollision) o 这时， 需要用新对象与桶中的所有对象进行比较， 査看这个对象是否已经存在。如果散列码是合理且随机分布的， 桶的数目也足够大， 需要比较的次数就会很少。
+
+### 树集(TreeSet)
+
+树集是一个有序集合
+
+每次将一个元素添加到树中时，都被放置在正确的排序位置上。因此，迭代器总是以排好序的顺序访问每个元素。
+
+```java
+	Collection<String> treeSet =new TreeSet<>();
+		treeSet.add("sss0");
+		treeSet.add("sss1");
+		treeSet.add("sss2");
+		treeSet.add("sss3");
+		for (String s:treeSet){
+			System.out.println(s);
+		}
+```
+
+![image-20210705000957999](Image/image-20210705000957999.png)
+
+### 队列与双端队列
+
+队列可以让人们有效地在尾部添加一个元素， 在头部删除一个元素
+
+### 优先级队列
+
+优先级队列（priority queue) 中的元素可以按照任意的顺序插人，却总是按照排序的顺序进行检索。也就是说，无论何时调用remove 方法， 总会获得当前优先级队列中最小的元素。然而， 优先级队列并没有对所有的元素进行排序。如果用迭代的方式处理这些元素，并不需要对它们进行排序。优先级队列使用了一个优雅且高效的数据结构，称为堆（ heap)。堆是一个可以自我调整的二叉树，对树执行添加（ add) 和删除（ remore) 操作， 可以让最小的元素移动到根，而不必花费时间对元素进行排序。
+
+与TreeSet—样，一个优先级队列既可以保存实现了Comparable 接口的类对象， 也可以保存在构造器中提供的Comparator 对象。
+
+使用优先级队列的典型示例是任务调度。每一个任务有一个优先级， 任务以随机顺序添加到队列中。每当启动一个新的任务时，都将优先级最高的任务从队列中删除（由于习惯上将1 设为“ 最高” 优先级，所以会将最小的元素删除)。
+
+## 映射(map)
+
+### 基本映射操作
+
+Java 类库为映射提供了两个通用的实现：HashMap 和TreeMap。这两个类都实现了Map 接口。
+
+散列映射对键进行散列， 树映射用键的整体顺序对元素进行排序， 并将其组织成搜索树。散列或比较函数只能作用于键。与键关联的值不能进行散列或比较。
+
+```java
+	Map<Integer,Object> map = new HashMap<Integer,Object>();
+		map.put(1,"ss1");
+		map.put(2,"ss2");
+		map.put(3,"ss3");
+		map.put(4,"ss4");
+		map.put(5,"ss5");
+		System.out.println(map.get(4));
+		map.forEach((K,V)->System.out.println(K+": "+V ));
+```
+
+### 更新映射项
+
+处理映射时的一个难点就是更新映射项。正常情况下， 可以得到与一个键关联的原值，完成更新， 再放回更新后的值。不过，必须考虑一个特殊情况， 即键第一次出现。下面来看一个例子， 使用一个映射统计一个单词在文件中出现的频度。看到一个单词（word) 时， 我们将计数器增1， 如下所示：
+
+```java
+counts.put(word, counts.get(word)+ 1);
+```
+
+这是可以的， 不过有一种情况除外： 就是第一次看到word 时。在这种情况下，get 会返回null , 因此会出现一个NullPointerException 异常。
+
+作为一个简单的补救， 可以使用getOrDefault 方法：
+
+```java
+counts,put(word, counts.getOrDefault(word, 0)+ 1);
+```
+
+另一种方法是首先调用putlfAbsent 方法。只有当键原先存在时才会放入一个值。
+
+```java
+counts.putlfAbsent(word, 0);
+counts.put(word, counts.get(word)+ 1)
+```
+
+不过还可以做得更好。merge 方法可以简化这个常见的操作。如果键原先不存在，下面的调用：
+
+```java
+counts.merge(word, 1, Integer::sum);
+```
+
+### 映射视图
+
+映射的视图（ View )-->这是实现了Collection 接口或某个子接口的对象。
+
+有3 种视图： 键集、值集合（不是一个集） 以及键/ 值对集。键和键/ 值对可以构成一个集， 因为映射中一个键只能有一个副本。下面的方法：
+
+```java
+Set<K> keySet()
+Collection<V> values0
+Set<Map.Entry<K, V» entrySetO
+```
+
+Set 接口扩展了Collection 接口。因此， 可以像使用集合一样使用keySet。
+
+```java
+Map<Integer,Object> map = new HashMap<Integer,Object>();
+map.put(1,"ss1");
+map.put(2,"ss2");
+map.put(3,"ss3");
+map.put(4,"ss4");
+map.put(5,"ss5");
+System.out.println(map.get(4));
+map.forEach((K,V)->System.out.println(K+": "+V ));
+
+Set<Integer> integers = map.keySet();
+for( Integer s : integers ){
+  System.out.println(s);
+}
+```
+
+![image-20210705004037723](Image/image-20210705004037723.png)
+
+如果想同时查看键和值， 可以通过枚举条目来避免查找值:
+
+```java
+for (Map.Entry<Integer, Object> entry : map.entrySet()){
+  System.out.println(entry.getKey() + ": "+entry.getValue());
+}
+
+//lamda
+map.forEach((key, value)-> System.out.println(key + ": "+value));
+```
+
+![image-20210705004227451](Image/image-20210705004227451.png)
+
+### 弱散列映射
+
+WeakHashMap 使用弱引用（ weak references) 保存键。WeakReference 对象将引用保存到另外一个对象中， 在这里， 就是散列键。对于这种类型的对象， 垃圾回收器用一种特有的方式进行处理。通常， 如果垃圾回收器发现某个特定的对象已经没有他人引用了， 就将其回收。然而， 如果某个对象只能由WeakReference 引用， 垃圾回收器仍然回收它，但要将引用这个对象的弱引用放人队列中。WeakHashMap 将周期性地检查队列， 以便找出新添加的弱引用。一个弱引用进人队列意味着这个键不再被他人使用， 并且已经被收集起来。于是， WeakHashMap 将删除对应的条目。
+
+### 链接散列集与映射(LinkedHashSet 和LinkedHashMap)
+
+LinkedHashSet 和LinkedHashMap 类用来记住插人元素项的顺序。这样就可以避免在散列表中的项从表面上看是随机排列的。当条目插入到表中时，就会并人到双向链表中
+
+![image-20210705004907965](Image/image-20210705004907965.png)
+
+```java
+Map<String, Employee〉staff = new LinkedHashMap<>0;
+staff.put ("144-25-5464", new Employee("Amy Lee")) ;
+staff.put ("567-24-2546", new Employee("Harry Hacker")) ;
+staff.put ("157-62-7935", new Employee("Gary Cooper")) ;
+staff.put ("456-62-5527", new Employee("Francesca Cruz"))；
+```
+
+### 枚举集与映射(EmimSet)
+
+EmimSet 是一个枚举类型元素集的高效实现。由于枚举类型只有有限个实例， 所以EnumSet 内部用位序列实现。如果对应的值在集中， 则相应的位被置为1。
+
+![image-20210705010707421](Image/image-20210705010707421.png)
+
+### 标识散列映射(IdentityHashMap)
+
+类IdentityHashMap 有特殊的作用。在这个类中,键的散列值不是用hashCode函数计算的,而是用System.identityHashCode 方法计算的。这是Object.hashCode 方法根据对象的内存地址来计算散列码时所使用的方式。而且， 在对两个对象进行比较时， IdentityHashMap 类使用==, 而不使用equals。
+
+## 视图与包装器
+
+取而代之的是：keySet 方法返回一个实现Set接口的类对象， 这个类的方法对原映射进行操作。这种集合称为视图。
+
+### 轻量级集合包装器
+
+Arrays 类的静态方法asList 将返回一个包装了普通Java 数组的List 包装器。这个方法可以将数组传递给一个期望得到列表或集合参数的方法。例如：
+
+```java
+Card[] cardOeck = new Card[52];
+List<Card> cardList = Arrays.asList(cardDeck):
+```
+
+asList 方法可以接收可变数目的参数。例如：
+
+```java
+List<String> names = Arrays.asList("A«iy", "Bob", "Carl") ;
+```
+
+创建Col1ections.nCopies(n, anObject):
+
+```java
+List<String> settings = Collections.nCopies(100, "DEFAULT") ;
+
+List<String> settings = Collections.nCopies(100, "DEFAULT") ;
+for (String setting : settings){
+  System.out.println(setting);
+}
+```
+
+将返回一个实现了List 接口的不可修改的对象， 并给人一种包含100个元素， 每个元素都像是一个DEFAULT的错觉。
+
+创建Collections.singleton(anObject):
+
+### 子范围
+
+可以为很多集合建立子范围（subrange) 视图。例如， 假设有一个列表staff, 想从中取出第10 个~ 第19 个元素。可以使用subList 方法来获得一个列表的子范围视图。
+
+```java
+List<String> settings = Collections.nCopies(100, "DEFAULT") ;
+		for (String setting : settings){
+			System.out.println(setting);
+		}
+		
+		Set<List<String>> singleton = Collections.singleton(settings);
+		int size = singleton.size();
+		System.out.println(size);
+		
+		List<String> strings = settings.subList(10, 20);
+		for(String setting : strings){
+			System.out.println(setting);
+		}
+```
+
+第一个索引包含在内， 第二个索引则不包含在内。这与String 类的substring 操作中的参数情况相同。
+
+### 不可修改的视图
+
+可以使用下面8 种方法获得不可修改视图：
+
+```java
+Collections.unmodifiableCollection
+Collections.unmodifiableList
+Collections.unmodifiableSet
+Collections.unmodifiableSortedSet
+Collections.unmodifiableNavigableSet
+Collections.unmodifiableMap
+Collections.unmodifiableSortedMap
+Collections. unmodifiableNavigableMap
+```
+
+每个方法都定义于一个接口。例如， Collections.unmodifiableList 与ArrayList、LinkedList或者任何实现了List 接口的其他类一起协同工作。
+
+例如， 假设想要查看某部分代码， 但又不触及某个集合的内容， 就可以进行下列操作：
+
+```java
+List<String> staff = new LinkedListoO ;
+lookAt (Collections.unmodifiableList(staff)) ;
+```
+
+不可修改视图并不是集合本身不可修改。仍然可以通过集合的原始引用（在这里是staff)对集合进行修改。并且仍然可以让集合的元素调用更改器方法。
+
+### 同步视图
+
+如果由多个线程访问集合，就必须确保集不会被意外地破坏。例如， 如果一个线程试图将元素添加到散列表中，同时另一个线程正在对散列表进行再散列，其结果将是灾难性的。
+
+类库的设计者使用视图机制来确保常规集合的线程安全， 而不是实现线程安全的集合类。例如， Collections 类的静态synchronizedMap 方法可以将任何一个映射表转换成具有同步访问方法的Map:
+
+```java
+Map<String, Employee〉map = Collections.synchronizedMap(new HashMap<String, Employee>0)；
+```
+
+### 受查视图
+
+受査” 视图用来对泛型类型发生问题时提供调试支持。实际上将错误类型的元素混人泛型集合中的问题极有可能发生。例如：
+
+```java
+List<String> strings1 = Collections.checkedList(strings, String.class);
+```
+
+视图的add 方法将检测插人的对象是否属于给定的类。如果不属于给定的类， 就立即抛出一个ClassCastException。这样做的好处是错误可以在正确的位置得以报告：
+
+### 关于可选操作的说明
+
+通常， 视图有一些局限性， 即可能只可以读、无法改变大小、只支持删除而不支持插人，这些与映射的键视图情况相同。如果试图进行不恰当的操作，受限制的视图就会抛出一个UnsupportedOperationException。
+
+在集合和迭代器接口的API 文档中， 许多方法描述为“ 可选操作”。这看起来与接口的概念有所抵触。毕竟， 接口的设计目的难道不是负责给出一个类必须实现的方法吗？ 确实，从理论的角度看，在这里给出的方法很难令人满意。一个更好的解决方案是为每个只读视图和不能改变集合大小的视图建立各自独立的两个接口。不过这将会使接口的数量成倍增长，这让类库设计者无法接受。
+
+是否应该将“ 可选” 方法这一技术扩展到用户的设计中呢？ 我们认为不应该。尽管集合被频繁地使用， 其实现代码的风格也未必适用于其他问题领域。集合类库的设计者必须解决一组特别严格且又相互冲突的需求。用户希望类库应该易于学习、使用方便，彻底泛型化，面向通用性， 同时又与手写算法一样高效。要同时达到所有目标的要求， 或者尽量兼顾所有目标完全是不可能的。但是，在自己的编程问题中， 很少遇到这样极端的局限性。应该能够找到一种不必依靠极端衡量“ 可选的” 接口操作来解决这类问题的方案。
+
+## 算法
+
+### 排序与混排
+
+```java
+List<Integer> integers = new LinkedList<>();
+		integers.add(1);
+		integers.add(5);
+		integers.add(8);
+		integers.add(9);
+		integers.add(7);
+		integers.add(6);
+		integers.add(2);
+		System.out.println(integers.toString());
+		
+		//升序排序
+		Collections.sort(integers);
+		System.out.println(integers.toString());
+		
+		//降序排序
+		integers.sort(Comparator.reverseOrder());
+		System.out.println(integers.toString());
+```
+
+
+
+### 二分查找
+
+### 简单算法
+
+### 批操作
+
+![image-20210705021206148](Image/image-20210705021206148.png)
+
+### 集合与数组的转换
+
+如果需要把一个数组转换为集合，Arrays.asList 包装器可以达到这个目的。例如：
+
+```java
+String□ values = . .
+HashSet<String> staff = new HashSet<>(Arrays.asList(values));
+```
+
+从集合得到数组会更困难一些。当然，可以使用toArray 方法：
+
+```java
+Object[] values = staff.toArray();
+```
+
+### 编写自己的算法
+
+## 遗留的集合
+
+# 并发
+
+多线程程序在较低的层次上扩展了多任务的概念： 一个程序同时执行多个任务。通常，每一个任务称为一个线程(thread), 它是线程控制的简称。可以同时运行一个以上线程的程序称为多线程程序（multithreaded)。
+
+## 什么是线程
+
+### 使用线程给其他任务提供机会
+
+如果需要执行一个比较耗时的任务，应当并发地运行任务。
+
+## 中断线程
+
+当线程的run 方法执行方法体中最后一条语句后， 并经由执行return 语句返冋时， 或者出现了在方法中没有捕获的异常时， 线程将终止
+
+没有可以强制线程终止的方法。然而， interrupt 方法可以用来请求终止线程。
+
+当对一个线程调用interrupt 方法时，线程的中断状态将被置位。这是每一个线程都具有的boolean 标志。每个线程都应该不时地检査这个标志， 以判断线程是否被中断。
+
+要想弄清中断状态是否被置位， 首先调用静态的Thread.currentThread 方法获得当前线
+程， 然后调用islnterrupted 方法：
+
+```java
+while (!Thread.currentThread().islnterrupted() && more work to do)
+{
+	do more work
+}
+```
+
+但是， 如果线程被阻塞， 就无法检测中断状态。这是产生InterruptedExceptioii 异常的地方。当在一个被阻塞的线程（调用sleep 或wait ) 上调用interrupt 方法时， 阻塞调用将会被Interrupted Exception 异常中断
+
+在很多发布的代码中会发现InterruptedException 异常被抑制在很低的层次上， 像这样：
+
+```java
+void mySubTaskO
+{
+  try { sleep(delay); }
+  catch (InterruptedException e) {} // Don't ignore!
+}
+```
+
+不要这样做！ 如果不认为在catch 子句中做这一处理有什么好处的话，仍然有两种合理的选择：
+
+1. 在catch 子句中调用Thread.currentThread().interrupt() 来设置中断状态。于是，调用者
+   可以对其进行检测。
+
+   ```java
+   void mySubTaskO
+   {
+   	try { sleep(delay); }
+   	catch (InterruptedException e) {
+       Thread.currentThreadO -interruptO; 
+     }
+   }
+   ```
+
+2. 更好的选择是， 用throws InterruptedException 标记你的方法， 不采用try 语句块捕获异常。于是， 调用者（或者， 最终的run 方法）可以捕获这一异常。
+
+```java
+void mySubTaskO throws InterruptedException{
+	sleep(delay);
+}
+```
+
+## 线程状态
+
+线程可以有如下6 种状态：
+
+* New ( 新创建）
+* Runnable (可运行）
+* Blocked ( 被阻塞）
+* Waiting ( 等待）
+* Timed waiting (计时等待）
+* Terminated ( 被终止）
+
+### 新创建线程
+
+当用new 操作符创建一个新线程时， 如newThread(r)， 该线程还没有开始运行。这意味着它的状态是new。当一个线程处于新创建状态时， 程序还没有开始运行线程中的代码。在线程运行之前还有一些基础工作要做。
+
+### 可运行线程
+
+一旦调用start 方法，线程处于runnable 状态。==一个可运行的线桿可能正在运行也可能没有运行==， 这取决于操作系统给线程提供运行的时间。
+
+一旦一个线程开始运行，它不必始终保持运行。事实上，运行中的线程被中断，目的是为了让其他线程获得运行机会。线程调度的细节依赖于操作系统提供的服务。==抢占式调度系统==给每一个可运行线程一个时间片来执行任务。当时间片用完， 操作系统剥夺该线程的运行权， 并给另一个线程运行机会（见图14-4 )。当选择下一个线程时， 操作系统考虑线程的优先级。现在所有的桌面以及服务器操作系统都使用抢占式调度。
+
+在具有多个处理器的机器上， 每一个处理器运行一个线程， 可以有多个线程并行运行。当然， 如果线程的数目多于处理器的数目， 调度器依然采用时间片机制。
+
+### 被阻塞线程和等待线程
+
+当线程处于被阻塞或等待状态时， 它暂时不活动。它不运行任何代码且消耗最少的资源。直到线程调度器重新激活它
+
+* 当一个线程试图获取一个内部的对象锁（而不是javiutiUoncurrent 库中的锁)，而该锁被其他线程持有则该线程进人阻塞状态. 当所有其他线程释放该锁，并且线程调度器允许本线程持有它的时候，该线程将变成非阻塞状态。
+* 当线程等待另一个线程通知调度器一个条件时， 它自己进入等待状态在调用Object.wait 方法或Thread.join 方法， 或者是等待java,util.concurrent 库中的Lock 或Condition 时， 就会出现这种情况。实际上，被阻塞状态与等待状态是有很大不同的。
+* 有几个方法有一个超时参数。调用它们导致线程进人计时等待（ timed waiting ) 状态。这一状态将一直保持到超时期满或者接收到适当的通知。带有超时参数的方法有Thread.sleep 和Object.wait、Thread.join、Lock,tryLock 以及Condition.await 的计时版。
+
+### 被终止的线程
+
+线程因如下两个原因之一而被终止：
+
+* 因为run 方法正常退出而自然死亡。
+* 因为一个没有捕获的异常终止了nm 方法而意外死亡。
+
+![image-20210705120135073](Image/image-20210705120135073.png)
+
+## 线程属性
+
+* 线程优先级
+* 守护线程
+* 线程组
+* 处理未捕获异常的处理器
+
+### 线程优先级
+
+每一个线程有一个优先级。默认情况下， 一+线程继承它的父线程的优先级。可以用setPriority 方法提高或降低任何一个线程的优先级。可以将优先级设置为在MIN_PRIORITY (在Thread 类中定义为1 ) 与MAX_PRIORITY (定义为10 ) 之间的
+任何值。NORM_PRIORITY 被定义为5。
+
+每当线程调度器有机会选择新线程时， 它首先选择具有较高优先级的线程。但是，线程优先级是高度依赖于系统的。当虚拟机依赖于宿主机平台的线程实现机制时， Java 线程的优先级被映射到宿主机平台的优先级上， 优先级个数也许更多，也许更少。
+
+### 守护线程
+
+可以通过调用 t.setDaemon(true) ;
+
+守护线程的唯一用途是为其他线程提供服务。计时线程就是一个例子，它定时地发送“ 计时器嘀嗒” 信号给其他线程或清空过时的高速缓存项的线程。当只剩下守护线程时， 虚拟机就退出了， 由于如果只剩下守护线程， 就没必要继续运行程序了。
+
+守护线程应该永远不去访问固有资源， 如文件、数据库，因为它会在任何时候甚至在一个操作的中间发生中断。
+
+### 未捕获异常处理器
+
+## 同步
+
+两个或两个以上的线程需要共享对同一数据的存取。如果两个线程存取相同的对象， 并且每一个线程都调用了一个修改该对象状态的方法，将会发线程彼此踩了对方的脚。根据各线程访问数据的次序可能会产生讹误的对象。这样一个情况通常称为竞争条件
+
+### 竞争条件的一个例子
+
+```java
+public class UnsynchBankTest{
+	public static final int NACCOUNTS = 100;
+    public static final double INITIAL_BALANCE = 1000;
+    public static final double MAX_AMOUNT = 1000;
+    public static final int DELAY = 10;
+	
+	public static void main(String[] args){
+		Bank bank = new Bank(NACCOUNTS, INITIAL_BALANCE);
+		for (int i = 0; i < NACCOUNTS;i++){
+		   int fromAccount=i;
+		   Runnable r=()->{
+		     try {
+		         while( true ){
+			         int toAccount = (int) (bank.size()* Math.random());
+			         double amount = MAX_AMOUNT * Math.random();
+			         bank.transfer(fromAccount,toAccount, amount);
+			         Thread.sleep((int) (DELAY*Math.random()));
+		         }
+		     }catch (InterruptedException e) {
+		     
+		     }
+		   };
+		   Thread t = new Thread();
+		   t.start();
+		}
+	}
+}
+```
+
+```java
+public class Bank{
+	private final double[] accounts ;
+	public Bank(int n, double initialBalance){
+		this.accounts =new double[n];
+		Arrays.fill(accounts, initialBalance);
+	}
+	
+	public void transfer(int from, int to, double amount){
+		if( accounts[from] < amount ){
+			return;
+		}
+		System.out.print(Thread.currentThread());
+		accounts[from] -= amount;
+		System.out.printf(" %10.2f from %A to 9W", amount, from, to);
+		accounts[to] += amount;
+		System.out.printf(" Total Balance: X10.2fXn", getTotalBalance());
+	}
+	private double getTotalBalance(){
+		double sum = 0;
+		for (double a : accounts){
+		    sum += a;
+		}
+		return sum;
+	}
+	public int size() {
+	    return accounts.length;
+	}
+}
+```
+
+### 竞争条件详解
+
+上一节中运行了一个程序，其中有几个线程更新银行账户余额。一段时间之后， 错误不知不觉地出现了， 总额要么增加， 要么变少。当两个线程试图同时更新同一个账户的时候，这个问题就出现了。
+
+1. 将accounts[to] 加载到寄存器。
+2. 增加amount。
+3. 将结果写回accounts[to]。
+
+现在， 假定第1 个线程执行步骤1 和2, 然后， 它被剥夺了运行权。假定第2 个线程被唤醒并修改了accounts 数组中的同一项。然后，第1 个线程被唤醒并完成其第3 步。这样， 这一动作擦去了第二个线程所做的更新。于是， 总金额不再正确。
+
+### 锁对象(Lock)
+
+有两种机制防止代码块受并发访问的干扰。Java 语言提供一个synchronized 关键字达到这一目的， 并且Java SE 5.0 引入了ReentrantLock 类.synchronized 关键字自动提供一个锁以及相关的“ 条件”， 对于大多数需要显式锁的情况， 这是很便利的。
+
+```java
+	private Lock lock = new ReentrantLock();
+	public void transfer(int from, int to, double amount){
+		//if( accounts[from] < amount ){
+		//	return;
+		//}
+		lock.lock();
+		try{
+			System.out.print(Thread.currentThread());
+			accounts[from] -= amount;
+			System.out.printf(" %10.2f from %A to 9W", amount, from, to);
+			accounts[to] += amount;
+			System.out.printf(" Total Balance: X10.2fXn", getTotalBalance());
+		}finally {
+		    lock.unlock();
+		}
+	}
+```
+
+
+
+![image-20210705145109303](Image/image-20210705145109303.png)
+
+### 条件对象
+
+### synchronized 关键字
+
+介绍了如何使用Lock 和Condition 对象。在进一步深人之前， 总结一下有关锁和条件的关键之处：
+
+* 锁用来保护代码片段， 任何时刻只能有一个线程执行被保护的代码。
+* 锁可以管理试图进入被保护代码段的线程。
+* 锁可以拥有一个或多个相关的条件对象。
+* 每个条件对象管理那些已经进入被保护的代码段但还不能运行的线程。
+
+如果一个方法用synchronized 关键字声明，那么对象的锁将保护整个方法。也就是说，要调用该方法， 线程必须获得内部的对象锁。
+
+```java
+//换句话说
+public synchronized void metho()
+{
+	method body
+}
+//等价于
+public void methodQ
+{
+  this.intrinsidock.1ock();
+  try
+  {
+    method body
+  }	finally {
+    this.intrinsicLock.unlockO; 
+  }
+}
+```
+
+### 同步阻塞
+
+每一个Java 对象有一个锁。线程可以通过调用同步方法获得锁。还有另一种机制可以获得锁，通过进入一个同步阻塞。当线程进入如下形式的阻塞：
+
+```java
+synchronized (obj) // this is the syntax for a synchronized block
+{
+	critical section
+}
+```
+
+```java
+public class Bank
+{
+  private doublet] accounts;
+  private Object lock = new Object();
+  public void transfer(int from, int to, int amount)
+  {
+    synchronized (lock) // an ad-hoc lock
+    {
+      accounts[from] -= amount;
+      accounts[to] += amount;
+    }
+    System.out.print1n(...)
+  }
+}
+                   
+```
+
