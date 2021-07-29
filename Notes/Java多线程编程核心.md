@@ -2481,6 +2481,8 @@ class Demo24Thread extends Thread{
 
 线程A的锁是123，50毫秒后线程B得到的锁是456，所以钱程之间就是异步。如果没有Thread.sleep(50)，线程A和线程B的锁都是123，虽然代码里将锁改成456，但结果还是同步，因为线程A和线程B争抢的锁是123.
 
+![image-20210729235536008](Image/image-20210729235536008.png)
+
 ```java
 package chap2;
 

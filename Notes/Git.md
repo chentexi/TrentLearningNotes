@@ -130,6 +130,43 @@ config有几个常用参数， 缺省等于local
 显示config的配置可以 加 --list
 	       git config --list --local
 
+#### git有代理时的操作代理
+
+Clone failed unabletoaccess xxx  :failed to connect to xxx port  :==Bad access==当出现这种情况时则进行以下操作,更换正确的的代理地址
+
+注销代理
+
+```git
+git config --global/local --unset http.proxy 
+```
+
+设置代理
+
+```
+git config --global/local  http.proxy http://xxx(127.0.0.1:8080)
+```
+
+如果还是Bad access错误时则更换正确的仓库地址
+
+![image-20210729182108237](Image/image-20210729182108237.png)
+
+```git
+git remote set-url origin http://xxx仓库项目地址xxxxxx
+```
+
+最终查看全局或者本地的配置
+
+```git
+//本地(本项目)
+git config --list --local
+//全局
+git config --list
+```
+
+
+
+
+
 ### 编辑
 
  1. 编辑vim  (vim 文件名)

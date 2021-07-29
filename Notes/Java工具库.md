@@ -15,7 +15,7 @@ System.out.println(join); // 输出 a,b,c
 
 ## 比较两个字符串是否相等，忽略大小写
 
-```
+```Java
 if (strA.equalsIgnoreCase(strB)) {  
   System.out.println("相等");  
 }  
@@ -25,13 +25,13 @@ if (strA.equalsIgnoreCase(strB)) {
 
 当我们用equals比较两个对象是否相等的时候，还需要对左边的对象进行判空，不然可能会报空指针异常，我们可以用java.util包下Objects封装好的比较是否相等的方法
 
-```
+```java
 Objects.equals(strA, strB);  
 ```
 
 源码是这样的
 
-```
+```java
 public static boolean equals(Object a, Object b) {  
     return (a == b) || (a != null && a.equals(b));  
 }  
@@ -275,7 +275,8 @@ Set<String> set = Sets.newHashSet();
 Multimap<String, Integer> map = ArrayListMultimap.create();  
 map.put("key", 1);  
 map.put("key", 2);  
-Collection<Integer> values = map.get("key");  
+Collection<Integer> values = map.g
+et("key");  
 System.out.println(map); // 输出 {"key":[1,2]}  
 // 还能返回你以前使用的臃肿的Map  
 Map<String, Collection<Integer>> collectionMap = map.asMap();  
