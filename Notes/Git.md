@@ -95,13 +95,40 @@ Git的默认编辑器，建议使用默认的 Vim编辑器，然后点击下一�
 | git config global user.email 邮箱       |  设置用户签名  |
 | git init                                |  初始化本地库  |
 | git status                              | 查看本地库状态 |
-| git add 文件名                          |  添加到暂存区  |
+| git add 文件名                          |                |
 | git commit -m "日志信息" 文件名         |  提交到本地库  |
 | git reflog                              |  查看历史记录  |
 | git reset --hard 版本号                 |    版本穿梭    |
 | git log                                 | 详细的历史记录 |
 
 ## Git 操作命令
+
+### 修改git的名字
+
+#### 修改全局的名字与邮箱
+
+git config --global user.name 'xxx'
+
+git config --global user.email 'xxx'
+
+#### 修改本身项目的名字
+
+git config --local user.name 'xxx'
+
+git config --local user.email 'xxx'
+
+![image-20210721101719774](Image/image-20210721101719774.png)
+
+config有几个常用参数， 缺省等于local
+
+* local 只对当前仓库有效
+* global 对登录⽤户所有仓库有效    
+* system 对系统的所有⽤户有效
+* unset 清除某个信息
+  	git config --unset --local user.name
+
+显示config的配置可以 加 --list
+	       git config --list --local
 
 ### 编辑
 
