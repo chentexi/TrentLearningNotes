@@ -38,6 +38,7 @@ Docker 要求 CentOS 系统的内核版本高于 3.10
 
 新版的 Docker 使用 /etc/docker/daemon.json（Linux） 来配置 Daemon。
 请在该配置文件中加入（没有该文件的话，请先建一个）：
+
 ```json
 {
   "registry-mirrors": ["http://hub-mirror.c.163.com"]

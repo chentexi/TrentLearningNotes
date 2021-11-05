@@ -1,5 +1,17 @@
 # Java
 
+在 Linux的 /usr/local安装Java
+
+使用命令
+
+```
+rpm -ivh [jdkname]
+```
+
+
+
+
+
 # No.4 object and Class 
 
 ## 用户自定义类
