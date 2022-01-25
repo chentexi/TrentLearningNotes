@@ -86,6 +86,14 @@ alter table bookitem
     
 ```
 
+### 给表重置自增id序号
+
+```MySQL
+alter table  sys_admin auto_increment=6;
+```
+
+
+
 ## DML
 
 ### insert

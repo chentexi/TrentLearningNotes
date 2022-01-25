@@ -211,7 +211,7 @@ import static chapter_four.Example01_ObjectStatic.ss;
 
 ![image-20210602231340478](Image/image-20210602231340478.png)
 
-#### ==多态==：
+#### 多态：
 
 一个对象变量可以指向多个实际类型的现象称为多态
 
