@@ -820,7 +820,98 @@ public void getMethodInvoke(){
 6. 使用多态， 而非类型信息
 7. 不要过多地使用反射
 
+## 反射实操
 
+在实体类中定义多个相同含义的字段,使用反射原理装配和获取实体属性
+
+```java
+	public class PaymentOrderSepAcc implements Serializable {
+
+        private static final long serialVersionUID = 5412431435866384851L;
+        /**
+         * 收款编号1
+         */
+        private String accountNum1;
+
+        /**
+         * 编号1分账金额
+         */
+        private String accountNum1Money;
+        /**
+         * 收款编号2
+         */
+        private String accountNum2;
+
+        /**
+         * 编号2分账金额
+         */
+        private String accountNum2Money;
+        /**
+         * 收款编号3
+         */
+        private String accountNum3;
+
+        /**
+         * 编号3分账金额
+         */
+        private String accountNum3Money;
+        /**
+         * 收款编号4
+         */
+        private String accountNum4;
+
+        /**
+         * 编号4分账金额
+         */
+        private String accountNum4Money;
+
+        .......
+    }
+```
+
+### 装配属性值
+
+```Java
+Class<?> paymentOrderSepAcc = Class.forName("com.seeyon.paymentorder.entity.PaymentOrderSepAcc");
+
+
+Method setAccountNum = paymentOrderSepAcc.getMethod("setAccountNum"+i, String.class);
+Method setAccountNumMoney = paymentOrderSepAcc.getMethod("setAccountNum"+i+"Money", String.class);
+setAccountNum.invoke(orderSepAcc,merchantCode);
+setAccountNumMoney.invoke(orderSepAcc,separateMoney);
+```
+
+类对象.getMethod(类中方法名,方法返回类型)
+
+类对象中的方法名.invoke(类对象,装配的值)
+
+### 获取属性值
+
+```java
+private String getAccountNumAndMoneyValue(String methodName,PaymentOrderSepAcc paymentOrderSepAcc){
+	Field field = paymentOrderSepAcc.getClass().getDeclaredField(methodName);
+	field.setAccessible(true);
+	return (String) field.get(object);
+}
+```
+
+getDeclaredField(声明的字段):
+
+==返回一个Field对象，它反映此表示的类或接口的指定已声明字段类对象。name参数是一个String，它指定了所需字段的简单名称。==
+
+==如果此类对象表示数组类型，则此方法不会找到数组类型的length字段。==
+
+
+
+get():
+
+==返回该所表示的字段的值Field，指定的对象上。  如果该对象具有原始类型，则该值将自动包装在对象中==
+
+
+
+setAccessible():
+
+==将此对象的accessible标志设置为指示的布尔值。true的值表示反射对象应该在使用时抑制Java语言访问检查.false的值表示反映的对象应该强制执行Java语言访问检查。==
 
 # Interface
 
@@ -2403,3 +2494,4 @@ public class Bank
                    
 ```
 
+^^33333
